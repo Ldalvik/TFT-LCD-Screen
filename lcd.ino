@@ -15,6 +15,12 @@
 #define magenta ST77XX_MAGENTA
 int bluetoothTx = 2;  // TX-O pin of bluetooth mate, Arduino D2
 int bluetoothRx = 3;  // RX-I pin of bluetooth mate, Arduino D3
+enum method {
+    drawCircle,
+    drawFilledCircle,
+    YES,
+    NO
+};
 
 SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
@@ -41,13 +47,22 @@ void loop() {
   }
 }
 
-void check(String data){
-  if(data.startsWith("drawCircle")){
-    int x = split(data, ',', 1).toInt();
-    int y = split(data, ',', 2).toInt();
-    int radius = split(data, ',', 3).toInt();
-    int color = split(data, ',', 4).toInt();
-    drawCircle(x, y, radius, color);
+void check(String data) {
+  int method = split(data, ',', 0).toInt();
+
+  switch (method) {
+    case drawCircle:{
+      int x = split(data, ',', 1).toInt();
+      int y = split(data, ',', 2).toInt();
+      int radius = split(data, ',', 3).toInt();
+      int color = split(data, ',', 4).toInt();
+      drawCircle(x, y, radius, color);} break;
+    case drawFilledCircle:{
+      int x = split(data, ',', 1).toInt();
+      int y = split(data, ',', 2).toInt();
+      int radius = split(data, ',', 3).toInt();
+      int color = split(data, ',', 4).toInt();
+      drawFilledCircle(x, y, radius, color); }break;
   }
 }
 
@@ -105,8 +120,8 @@ void drawText(String text, int color, boolean isWrapped) {
   tft.print(text);
 }
 
-void clearScreen(int color){
-    tft.fillScreen(color);
+void clearScreen(int color) {
+  tft.fillScreen(color);
 }
 
 String split(String data, char separator, int index) {
@@ -124,3 +139,9 @@ String split(String data, char separator, int index) {
 
   return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
+
+char* toChar(String command){
+    if(command.length()!=0){
+        char *p = const_cast<char*>(command.c_str());
+        return p;
+    }
